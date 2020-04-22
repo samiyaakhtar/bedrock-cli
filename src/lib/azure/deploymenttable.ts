@@ -211,11 +211,12 @@ export const updateMatchingACRToHLDPipelineEntry = async (
   entries: DeploymentEntry[],
   tableInfo: DeploymentTable,
   pipelineId: string,
-  imageTag: string,
   hldCommitId: string,
   env: string,
   pr?: string,
-  repository?: string
+  repository?: string,
+  p1?: string,
+  imageTag?: string
 ): Promise<DeploymentEntry | null> => {
   const found = (entries || []).find((entry: DeploymentEntry) => {
     return (
@@ -232,8 +233,8 @@ export const updateMatchingACRToHLDPipelineEntry = async (
       commitId: found.commitId,
       env: env.toLowerCase(),
       hldCommitId: hldCommitId.toLowerCase(),
-      imageTag: found.imageTag,
-      p1: found.p1,
+      imageTag: found.imageTag || imageTag,
+      p1: found.p1 || p1,
       p2: pipelineId.toLowerCase(),
       service: found.service,
       sourceRepo: found.sourceRepo,
@@ -268,11 +269,12 @@ export const updateMatchingACRToHLDPipelineEntry = async (
 export const addNewRowToACRToHLDPipelines = async (
   tableInfo: DeploymentTable,
   pipelineId: string,
-  imageTag: string,
   hldCommitId: string,
   env: string,
   pr?: string,
   repository?: string,
+  p1?: string,
+  imageTag?: string,
   similarEntry?: DeploymentEntry
 ): Promise<DeploymentEntry> => {
   const newEntry: DeploymentEntry = {
@@ -281,8 +283,8 @@ export const addNewRowToACRToHLDPipelines = async (
     commitId: similarEntry?.commitId ? similarEntry.commitId : "",
     env: env.toLowerCase(),
     hldCommitId: hldCommitId.toLowerCase(),
-    imageTag: imageTag.toLowerCase(),
-    p1: similarEntry?.p1 ? similarEntry.p1 : "",
+    imageTag: imageTag ? imageTag.toLowerCase() : similarEntry?.imageTag,
+    p1: similarEntry?.p1 || p1 || "",
     p2: pipelineId.toLowerCase(),
     service: similarEntry?.service ? similarEntry.service : "",
     sourceRepo: similarEntry?.sourceRepo ? similarEntry.sourceRepo : "",
@@ -295,7 +297,7 @@ export const addNewRowToACRToHLDPipelines = async (
   }
   await insertToTable(tableInfo, newEntry);
   logger.info(
-    `Added new p2 entry for imageTag ${imageTag} - ${
+    `Added new p2 entry for imageTag ${imageTag} p1 ${p1} - ${
       similarEntry
         ? "by finding a similar entry"
         : "no matching entry was found."
@@ -315,17 +317,18 @@ export const addNewRowToACRToHLDPipelines = async (
 export const updateACRToHLDPipeline = async (
   tableInfo: DeploymentTable,
   pipelineId: string,
-  imageTag: string,
   hldCommitId: string,
   env: string,
   pr?: string,
-  repository?: string
+  repository?: string,
+  p1?: string,
+  imageTag?: string
 ): Promise<DeploymentEntry> => {
   try {
     const entries = await findMatchingDeployments(
       tableInfo,
-      "imageTag",
-      imageTag
+      p1 ? "p1" : "imageTag",
+      p1 ? p1 : imageTag!
     );
 
     if (entries && entries.length > 0) {
@@ -334,11 +337,12 @@ export const updateACRToHLDPipeline = async (
         entries,
         tableInfo,
         pipelineId,
-        imageTag,
         hldCommitId,
         env,
         pr,
-        repository
+        repository,
+        p1,
+        imageTag
       );
 
       if (found) {
@@ -350,11 +354,12 @@ export const updateACRToHLDPipeline = async (
       return await addNewRowToACRToHLDPipelines(
         tableInfo,
         pipelineId,
-        imageTag,
         hldCommitId,
         env,
         pr,
         repository,
+        p1,
+        imageTag,
         entries[entries.length - 1]
       );
     }
@@ -363,11 +368,12 @@ export const updateACRToHLDPipeline = async (
     return await addNewRowToACRToHLDPipelines(
       tableInfo,
       pipelineId,
-      imageTag,
       hldCommitId,
       env,
       pr,
-      repository
+      repository,
+      p1,
+      imageTag
     );
   } catch (err) {
     throw buildError(

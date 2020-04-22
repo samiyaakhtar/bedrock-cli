@@ -100,7 +100,7 @@ export const handlePipeline2 = async (
     !opts.p2 ||
     !hasValue(opts.hldCommitId) ||
     !hasValue(opts.env) ||
-    !hasValue(opts.imageTag)
+    (!hasValue(opts.imageTag) && !hasValue(opts.p1))
   ) {
     throw buildError(
       errorStatusCode.VALIDATION_ERR,
@@ -110,11 +110,12 @@ export const handlePipeline2 = async (
   await updateACRToHLDPipeline(
     tableInfo,
     opts.p2,
-    opts.imageTag,
     opts.hldCommitId,
     opts.env,
     opts.pr,
-    opts.repository
+    opts.repository,
+    opts.p1,
+    opts.imageTag
   );
 };
 
@@ -139,7 +140,7 @@ export const execute = async (
       tableName: config.tableName,
     };
 
-    if (hasValue(opts.p1)) {
+    if (hasValue(opts.service) || hasValue(opts.commitId)) {
       await handlePipeline1(tableInfo, opts);
     } else if (hasValue(opts.p2)) {
       await handlePipeline2(tableInfo, opts);

@@ -199,11 +199,12 @@ describe("test updateMatchingACRToHLDPipelineEntry function", () => {
       entries,
       mockedTableInfo,
       mockedPipelineId,
-      mockedImageTag,
       mockedHldCommitId,
       mockedEnv,
       mockedPr,
-      mockedRepository
+      mockedRepository,
+      mockedPipelineId,
+      mockedImageTag
     );
     expect(result).toBeDefined();
     done();
@@ -213,11 +214,12 @@ describe("test updateMatchingACRToHLDPipelineEntry function", () => {
       [],
       mockedTableInfo,
       mockedPipelineId,
-      mockedImageTag,
       mockedHldCommitId,
       mockedEnv,
       mockedPr,
-      mockedRepository
+      mockedRepository,
+      mockedPipelineId,
+      mockedImageTag
     );
     expect(result).toBeNull();
     done();
@@ -244,11 +246,12 @@ const testAddNewRowToACRToHLDPipelinesWithSimilarEntry = async (
   return await addNewRowToACRToHLDPipelines(
     mockedTableInfo,
     mockedPipelineId,
-    mockedImageTag,
     mockedHldCommitId,
     mockedEnv,
     mockedPr,
     mockedRepository,
+    mockedPipelineId,
+    mockedImageTag,
     entries[entries.length - 1]
   );
 };
@@ -275,10 +278,12 @@ const testAddNewRowToACRToHLDPipelines = async (
   return await addNewRowToACRToHLDPipelines(
     mockedTableInfo,
     mockedPipelineId,
-    mockedImageTag,
     mockedHldCommitId,
     mockedEnv,
-    mockedPr
+    mockedPr,
+    mockedRepository,
+    mockedPipelineId,
+    mockedImageTag
   );
 };
 
@@ -330,11 +335,12 @@ const testUpdateACRToHLDPipeline = async (
   await updateACRToHLDPipeline(
     mockedTableInfo,
     mockedPipelineId,
-    mockedImageTag,
     mockedHldCommitId,
     mockedEnv,
     mockedPr,
-    mockedRepository
+    mockedRepository,
+    mockedPipelineId,
+    mockedImageTag
   );
 
   if (noEntry) {
